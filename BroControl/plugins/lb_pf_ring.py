@@ -21,5 +21,5 @@ class LBPFRing(BroControl.plugin.Plugin):
 
             if nn.lb_method == "pf_ring":
                 if BroControl.config.Config.pfringclusterid != "0":
-                    nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW=1"]
+                    nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW=%s" % BroControl.config.Config.pfringclustertype]
                     nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]

@@ -688,6 +688,11 @@ User Options
 *PFRINGClusterID* (int, default @PF_RING_CLUSTER_ID@)
     If PF_RING flow-based load balancing is desired, this is where the PF_RING cluster id is defined. The default value is configuration-dependent and determined automatically by CMake at configure-time based upon whether PF_RING's enhanced libpcap is available.  Bro must be linked with PF_RING's libpcap wrapper for this option to work.
 
+.. _PFRINGClusterType:
+
+*PFRINGClusterType* (int, default 2)
+    If PF_RING flow-based load balancing is desired, this is where the PF_RING cluster type is defined. A value of 0 means use 6-tuple load-balancing (src ip/port, dst ip/port, proto, vlan), 1 means use round-robin, 2 means use 2-tuple (src ip, dst ip), 3 means use 4-tuple (src ip/port, dst ip/port), and 4 means use 5-tuple (src ip/port, dst ip/port, proto). Bro must be linked with PF_RING's libpcap wrapper for this option to work.
+
 .. _Prefixes:
 
 *Prefixes* (string, default "local")
