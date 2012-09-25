@@ -81,8 +81,8 @@ options = [
 
     Option("PFRINGClusterID", "@PF_RING_CLUSTER_ID@", "int", Option.USER, False,
            "If PF_RING flow-based load balancing is desired, this is where the PF_RING cluster id is defined. The default value is configuration-dependent and determined automatically by CMake at configure-time based upon whether PF_RING's enhanced libpcap is available.  Bro must be linked with PF_RING's libpcap wrapper for this option to work."),
-    Option("PFRINGClusterType", "2", "int", Option.USER, False,
-           "If PF_RING flow-based load balancing is desired, this is where the PF_RING cluster type is defined. A value of 0 means use 6-tuple load-balancing (src ip/port, dst ip/port, proto, vlan), 1 means use round-robin, 2 means use 2-tuple (src ip, dst ip), 3 means use 4-tuple (src ip/port, dst ip/port), and 4 means use 5-tuple (src ip/port, dst ip/port, proto). Bro must be linked with PF_RING's libpcap wrapper for this option to work."),
+    Option("PFRINGClusterType", "2tuple", "string", Option.USER, False,
+           "If PF_RING flow-based load balancing is desired, this is where the PF_RING cluster type is defined. Allowed values are: 2tuple, 4tuple, 5tuple, or 5tupletcp. Bro must be linked with PF_RING's libpcap wrapper for this option to work."),
 
     Option("CFlowAddress", "", "string", Option.USER, False,
            "If a cFlow load-balancer is used, the address of the device (format: <ip>:<port>)."),
