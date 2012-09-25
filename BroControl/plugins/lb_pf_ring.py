@@ -21,5 +21,19 @@ class LBPFRing(BroControl.plugin.Plugin):
 
             if nn.lb_method == "pf_ring":
                 if BroControl.config.Config.pfringclusterid != "0":
-                    nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW=%s" % BroControl.config.Config.pfringclustertype]
-                    nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+                    if BroControl.config.Config.pfringclustertype == "2tuple":
+                        nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW_2_TUPLE=1"]
+                        nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+                    elif BroControl.config.Config.pfringclustertype == "4tuple":
+                        nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW_4_TUPLE=1"]
+                        nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+                    elif BroControl.config.Config.pfringclustertype == "5tupletcp":
+                        nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW_TCP_5_TUPLE=1"]
+                        nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+                    elif BroControl.config.Config.pfringclustertype == "5tuple":
+                        nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW_5_TUPLE=1"]
+                        nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+                    else:
+                        nn.env_vars += ["PCAP_PF_RING_USE_CLUSTER_PER_FLOW=1"]
+                        nn.env_vars += ["PCAP_PF_RING_CLUSTER_ID=%s" % BroControl.config.Config.pfringclusterid]
+
