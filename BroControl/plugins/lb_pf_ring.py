@@ -26,16 +26,22 @@ class LBPFRing(BroControl.plugin.Plugin):
 
                 clustertype = BroControl.config.Config.pfringclustertype;
 
-                if clustertype == "2tuple":
+                if clustertype == "2-tuple":
                     cpf = "PCAP_PF_RING_USE_CLUSTER_PER_FLOW_2_TUPLE=1"
-                elif clustertype == "4tuple":
+                elif clustertype == "4-tuple":
                     cpf = "PCAP_PF_RING_USE_CLUSTER_PER_FLOW_4_TUPLE=1"
-                elif clustertype == "5tupletcp":
+                elif clustertype == "5-tuple-tcp":
                     cpf = "PCAP_PF_RING_USE_CLUSTER_PER_FLOW_TCP_5_TUPLE=1"
-                elif clustertype == "5tuple":
+                elif clustertype == "5-tuple":
                     cpf = "PCAP_PF_RING_USE_CLUSTER_PER_FLOW_5_TUPLE=1"
+                elif clustertype == "round-robin":
+                    # Round-robin only requires the cluster id
+                    cpf = ""
                 else:
+                    # Use default PF_RING clustering type of "cluster_per_flow"
                     cpf = "PCAP_PF_RING_USE_CLUSTER_PER_FLOW=1"
 
-                nn.env_vars += [cid, cpf]
+                nn.env_vars += [cid]
+                if cpf:
+                    nn.env_vars += [cpf]
 
