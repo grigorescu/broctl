@@ -515,7 +515,7 @@ def status(nodes):
                         peers[node.name] += [val]
         else:
             peers[node.name] = None
-
+    
     for (node, isrunning) in all:
 
         util.output("%-10s " % node.name, nl=False)
@@ -540,6 +540,9 @@ def status(nodes):
             util.output("%-8s  " % startups[node.name], nl=False)
 
         util.output()
+
+    # Return True if all nodes are running
+    return len(nodes) == len(all)
 
 # Outputs state of remote connections for host.
 
@@ -634,6 +637,7 @@ def top(nodes):
 
     util.output("%-10s %-10s %-10s %-8s %-8s %-8s %-8s %-8s %-8s" % ("Name", "Type", "Node", "Pid", "Proc", "VSize", "Rss", "Cpu", "Cmd"))
 
+    hadError = False
     for (node, error, vals) in getTopOutput(nodes):
 
         if not error:
@@ -649,11 +653,14 @@ def top(nodes):
                 util.output("%-8s " % d["cmd"], nl=False)
                 util.output()
         else:
+            hadError = True
             util.output("%-10s " % node.name, nl=False)
             util.output("%-8s " % node.type, nl=False)
             util.output("%-8s " % node.host, nl=False)
             util.output("<%s> " % error, nl=False)
             util.output()
+            
+    return not hadError
 
 def _doCheckConfig(nodes, installed, list_scripts):
 
@@ -700,7 +707,6 @@ def _doCheckConfig(nodes, installed, list_scripts):
                 for line in output:
                     util.output("  %s" % line)
         else:
-            ok = False
             util.output("%s failed." % node.name)
             for line in output:
                 util.output("   %s" % line)
@@ -716,7 +722,7 @@ def checkConfigs(nodes):
 # Prints the loaded_scripts.log for either the installed scripts
 # (if check argument is false), or the original scripts (if check arg is true)
 def listScripts(nodes, check):
-    _doCheckConfig(nodes, not check, True)
+    return _doCheckConfig(nodes, not check, True)
 
 # Report diagostics for node (e.g., stderr output).
 def crashDiag(node):
@@ -725,15 +731,17 @@ def crashDiag(node):
 
     if not execute.isdir(node, node.cwd()):
         util.output("No work dir found\n")
-        return
+        return False
 
     (rc, output) = execute.runHelper(node, "run-cmd",  [os.path.join(config.Config.scriptsdir, "crash-diag"), node.cwd()])
     if not rc:
         util.output("cannot run crash-diag for %s" % node.name)
-        return
+        return False
 
     for line in output:
         util.output(line)
+        
+    return True
 
 # Clean up the working directory for nodes (flushes state).
 # If cleantmp is true, also wipes ${tmpdir}; this is done
@@ -762,9 +770,12 @@ def attachGdb(nodes):
     running = isRunning(nodes)
 
     cmds = []
+    hadError = False
     for (node, isrunning) in running:
         if isrunning:
             cmds += [(node, "gdb-attach", ["gdb-%s" % node.name, config.Config.bro, str(node.getPID())])]
+        else:
+            hadError = True
 
     results = execute.runHelperParallel(cmds)
     for (node, success, output) in results:
@@ -772,6 +783,9 @@ def attachGdb(nodes):
             util.output("gdb attached on %s" % node.name)
         else:
             util.output("cannot attach gdb on %s: %s" % node.name, output)
+            hadError = True
+            
+    return not hadError
 
 # Helper for getting capstats output.
 #
@@ -934,7 +948,7 @@ def capstats(nodes, interval):
 
     if not have_cflow and not have_capstats:
         util.warn("do not have capstats binary available")
-        return
+        return False
 
     if have_cflow:
         cflow_start = getCFlowStatus()
@@ -959,6 +973,8 @@ def capstats(nodes, interval):
     if have_cflow and cflow_start and cflow_stop:
         diffs = calculateCFlowRate(cflow_start, cflow_stop, interval)
         output("cFlow Port", sorted(diffs))
+    
+    return True
 
 # Update the configuration of a running instance on the fly.
 def update(nodes):
@@ -1081,22 +1097,34 @@ def _queryNetStats(nodes):
     return execute.sendEventsParallel(events)
 
 def peerStatus(nodes):
+    hadError = False
     for (node, success, args) in _queryPeerStatus(nodes):
         if success:
             print "%10s\n%s" % (node, args[0])
         else:
             print "%10s   <error: %s>" % (node, args)
+            hadError = True
+            
+    return not hadError
 
 def netStats(nodes):
+    hadError = False
     for (node, success, args) in _queryNetStats(nodes):
         if success:
             print "%10s: %s" % (node, args[0]),
         else:
             print "%10s: <error: %s>" % (node, args)
+            hadError = True
+            
+    return not hadError
 
 def executeCmd(nodes, cmd):
+    hadError = False
     for (node, success, output) in execute.executeCmdsParallel([(n, cmd) for n in nodes]):
         util.output("[%s] %s\n> %s" % (node.name, (success and " " or "error"), "\n> ".join(output)))
+        if (not success) or (success == "error"):
+            hadError = True
+    return not hadError
 
 def processTrace(trace, bro_options, bro_scripts):
     standalone = (config.Config.standalone == "1")
