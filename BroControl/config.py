@@ -106,20 +106,6 @@ class Configuration:
         else:
             return self.config.items()
 
-    def _checkCPU(self, cpu):
-        """Make sure that the CPU value to pin the process to is an int > 0.
-
-        TODO: Verify that this CPU exists on the correct host"""
-        
-        try:
-            cpuid = int(cpu)
-            if cpuid < 1:
-                util.error("%s: value of cpu must be at least 1 in section '%s'" % (file, sec))
-        except ValueError:
-            util.error("%s: value of cpu must be an integer in section '%s'" % (file, sec))
-            
-        return cpuid
-
     # Returns a list of Nodes.
     # - If tag is "global" or "all", all Nodes are returned if "expand_all" is true.
     #     If "expand_all" is false, returns an empty list in this case.
@@ -270,11 +256,6 @@ class Configuration:
 
             node.count = counts[type]
 
-            if node.cpu:
-                node.cpu = self._checkCPU(node.cpu)
-            else:
-                node.cpu = 0
-
             if node.lb_procs:
                 try:
                     numprocs = int(node.lb_procs)
@@ -306,13 +287,9 @@ class Configuration:
 
                 for num in xrange(2, int(node.lb_procs) + 1):
                     newnode = copy.deepcopy(node)
-                    # only the node name, count and CPU need to be changed
+                    # only the node name and count need to be changed
                     newname = "%s-%d" % (sec, num)
                     newnode.name = newname
-                    if node.cpu:
-                        newnode.cpu = self._checkCPU(node.cpu) + num - 1
-                    else:
-                        newnode.cpu = 0
                     self.nodelist[newname] = newnode
                     counts[type] += 1
                     newnode.count = counts[type]

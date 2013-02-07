@@ -454,12 +454,7 @@ def _runHelperInit(host, cmd, args, fullcmd, env):
     (stdin, stdout) = c
 
     if not fullcmd:
-        if host.cpu:
-            _cmd = "taskset -c %d %s" % (host.cpu-1, os.path.join(config.Config.helperdir, cmd))
-        else:
-            _cmd = os.path.join(config.Config.helperdir, cmd)
-        cmdline = "%s %s %s" % (env, _cmd, " ".join(args))
-
+        cmdline = "%s %s %s" % (env, os.path.join(config.Config.helperdir, cmd), " ".join(args))
     else:
         cmdline = fullcmd
 

@@ -33,13 +33,6 @@ class Node:
         ``lb_procs`` (integer)
             The number of clustered Bro workers you'd like to start up.
 
-        ``cpu`` (integer) 
-            The CPU number to pin the process to. On a quad-core
-            system, valid CPUs are 1, 2, 3, and 4. Note that if you're
-            using lb_procs (see above), this is the CPU for the first
-            process.  For example, cpu=2 and lb_procs=4 will assign
-            one process each to CPU 2, 3, 4, and 5.
-
         ``lb_method`` (string)
             The load balancing method to distribute packets to all of the 
             processes (must be one of: ``pf_ring``, ``myricom``, or
@@ -72,7 +65,7 @@ class Node:
     # same name. Custom keys can be add via addKey().
     _keys = { "type": 1, "host": 1, "interface": 1, "aux_scripts": 1, 
               "brobase": 1, "ether": 1, "zone_id": 1,
-              "lb_procs": 1, "lb_method": 1, "lb_interfaces": 1, "cpu": 1 }
+              "lb_procs": 1, "lb_method": 1, "lb_interfaces": 1 }
 
 
     def __init__(self, name):
